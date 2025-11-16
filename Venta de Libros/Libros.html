@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta - Librería Literaria</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>Punto de Venta - Librería Literaria</h1>
+    
+    <!-- Sección de filtros: permite al usuario filtrar los libros por categoría o buscar por nombre del libro en tiempo real. -->
+    <div class="filters">
+        <label for="categoryFilter">Categoría:</label>
+        <select id="categoryFilter" onchange="filterProducts()">
+            <option value="all">Todas</option>
+            <option value="Ficción">Ficción</option>
+            <option value="No Ficción">No Ficción</option>
+            <option value="Infantil">Infantil</option>
+            <option value="Biografías">Biografías</option>
+        </select>
+        
+        <label for="searchInput">Buscar libro:</label>
+        <input type="text" id="searchInput" placeholder="Escribe el título..." onkeyup="filterProducts()">
+    </div>
+
+    <!-- Tabla que muestra todos los productos disponibles (libros).
+        Cada fila contiene: imagen, nombre, precio, campo para cantidad y botón para agregar al carrito.
+        Los atributos 'data-category' y 'data-name' permiten filtrar los productos desde JavaScript.-->
+    <table class="products-table">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Libro</th>
+                <th>P recio</th>
+                <th>Cantidad</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="productsBody">
+
+            <!-- Cada <tr> representa un libro disponible -->
+
+            <tr class="product" data-category="Ficción" data-name="Cien años de soledad">
+                <td><img src="img/cienAñosSoledad.jpg" alt="Cien años de soledad"></td>
+                <td>Cien años de soledad</td>
+                <td>$25</td>
+                <td><input type="number" min="1" value="1" class="quantity"></td>
+
+                <!-- El botón pasa 'this' (el propio botón) a la función addToCart, lo que permite acceder al input de cantidad asociado de forma segura. -->
+
+                <td><button onclick="addToCart(this, 'Cien años de soledad', 25)">Agregar al Carrito</button></td>
+            </tr>
+            <tr class="product" data-category="No Ficción" data-name="Sapiens: De animales a dioses">
+                <td><img src="img/Sapiens.jpg" alt="Sapiens"></td>
+                <td>Sapiens: De animales a dioses</td>
+                <td>$30</td>
+                <td><input type="number" min="1" value="1" class="quantity"></td>
+                <td><button onclick="addToCart(this, 'Sapiens: De animales a dioses', 30)">Agregar al Carrito</button></td>
+            </tr>
+            <tr class="product" data-category="Infantil" data-name="El principito">
+                <td><img src="img/libro-el-principito.jpg" alt="El principito"></td>
+                <td>El principito</td>
+                <td>$15</td>
+                <td><input type="number" min="1" value="1" class="quantity"></td>
+                <td><button onclick="addToCart(this, 'El principito', 15)">Agregar al Carrito</button></td>
+            </tr>
+            <tr class="product" data-category="Ficción" data-name="1984">
+                <td><img src="img/1984.webp" alt="1984"></td>
+                <td>1984</td>
+                <td>$20</td>
+                <td><input type="number" min="1" value="1" class="quantity"></td>
+                <td><button onclick="addToCart(this, '1984', 20)">Agregar al Carrito</button></td>
+            </tr>
+            <tr class="product" data-category="Biografías" data-name="Steve Jobs">
+                <td><img src="img/steveJobs.webp" alt="Steve Jobs"></td>
+                <td>Steve Jobs</td>
+                <td>$28</td>
+                <td><input type="number" min="1" value="1" class="quantity"></td>
+                <td><button onclick="addToCart(this, 'Steve Jobs', 28)">Agregar al Carrito</button></td>
+            </tr>
+            <tr class="product" data-category="Infantil" data-name="Harry Potter y la piedra filosofal">
+                <td><img src="img/HarryPotter.webp" alt="Harry Potter y la piedra filosofal"></td>
+                <td>Harry Potter y la piedra filosofal</td>
+                <td>$22</td>
+                <td><input type="number" min="1" value="1" class="quantity"></td>
+                <td><button onclick="addToCart(this, 'Harry Potter y la piedra filosofal', 22)">Agregar al Carrito</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Sección del carrito de compras.
+        Incluye campos para el nombre del cliente y notas adicionales,una lista dinámica de los productos agregados, el total y botones de control. -->
+    <div class="cart">
+        <h2>Carrito de Compras</h2>
+        <label for="customerName">Nombre del Cliente:</label>
+        <input type="text" id="customerName" placeholder="Ingresa el nombre del cliente">
+        
+        <label for="notes">Notas adicionales:</label>
+        <textarea id="notes" placeholder="Ej. Dedicado, envío urgente..."></textarea>
+        
+        <!-- Lista dinámica que se actualiza con JavaScript cuando se agregan productos -->
+        <ul id="cartItems"></ul>
+        <p id="total">Total: $0</p>
+        <button onclick="clearCart()">Vaciar Carrito</button>
+        <button onclick="finalizePurchase()">Finalizar Compra</button>
+    </div>
+
+    <!-- Modal (ventana emergente) que muestra un resumen detallado de la compra al finalizar. Incluye productos, total, nombre del cliente y notas. -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Resumen de Compra</h2>
+            <table id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Libro</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+            <p id="summaryTotal">Total: $0</p>
+            <p id="summaryCustomer"></p>
+            <p id="summaryNotes"></p>
+        </div>
+    </div>
+
+ <!-- Notificación emergente que aparece brevemente al agregar un producto.
+      Se controla con CSS y JavaScript (clase 'show' para mostrar/ocultar). -->
+    <div id="notification" class="notification">¡Producto agregado al carrito!</div>
+
+    <!-- Enlace al archivo JavaScript que contiene toda la lógica interactiva -->
+    <script src="javascript.js"></script>
+</body>
+</html>
